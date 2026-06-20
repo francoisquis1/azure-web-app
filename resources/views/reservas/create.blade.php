@@ -3,16 +3,17 @@
 @section('titulo', 'Reservar Cancha')
 
 @section('contenido')
-    <h1>Reservar una Cancha</h1>
+    <h1 class="titulo">Reservar una Cancha</h1>
+    <p class="subtitulo">Completa los datos de tu reserva</p>
 
     @if($canchas->isEmpty())
         <div class="vacio">
+            <div class="icono">🥅</div>
             <p>No hay canchas disponibles para reservar.</p>
-            <br>
             <a href="{{ route('canchas.create') }}" class="btn">Registrar una cancha primero</a>
         </div>
     @else
-        <form action="{{ route('reservas.store') }}" method="POST">
+        <form action="{{ route('reservas.store') }}" method="POST" class="formulario">
             @csrf
             <div class="campo">
                 <label>Cancha</label>
@@ -28,7 +29,7 @@
             </div>
             <div class="campo">
                 <label>Tu nombre</label>
-                <input type="text" name="nombre_cliente" value="{{ old('nombre_cliente') }}" required>
+                <input type="text" name="nombre_cliente" value="{{ old('nombre_cliente') }}" placeholder="Juan Pérez" required>
             </div>
             <div class="campo">
                 <label>Teléfono</label>
@@ -46,8 +47,10 @@
                 <label>Hora de fin</label>
                 <input type="time" name="hora_fin" value="{{ old('hora_fin') }}" required>
             </div>
-            <button type="submit" class="btn">Confirmar reserva</button>
-            <a href="{{ route('canchas.index') }}" class="btn btn-sec">Cancelar</a>
+            <div class="form-acciones">
+                <button type="submit" class="btn">Confirmar reserva</button>
+                <a href="{{ route('canchas.index') }}" class="btn btn-sec">Cancelar</a>
+            </div>
         </form>
     @endif
 @endsection

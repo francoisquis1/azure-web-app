@@ -28,6 +28,7 @@ class CanchaController extends Controller
             'tipo'        => 'required|string|max:50',
             'precio_hora' => 'required|numeric|min:0',
             'descripcion' => 'nullable|string|max:255',
+            'imagen_url'  => 'nullable|url|max:500',
         ]);
 
         $datos['activa'] = true;

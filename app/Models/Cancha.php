@@ -14,6 +14,7 @@ class Cancha extends Model
         'tipo',        // ej: "Fútbol 5", "Fútbol 7", "Fútbol 11"
         'precio_hora',
         'descripcion',
+        'imagen_url',  // link a la foto de la cancha
         'activa',
     ];
 
