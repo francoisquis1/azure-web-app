@@ -24,7 +24,7 @@ jobs:
           tools: composer:v2
 
       - name: Instalar dependencias de Composer
-        run: composer update --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs --no-audit
+        run: composer update --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
 
       - name: Preparar .env
         run: cp .env.example .env
