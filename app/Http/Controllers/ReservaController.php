@@ -11,7 +11,8 @@ class ReservaController extends Controller
     // Lista todas las reservas
     public function index()
     {
-        $reservas = Reserva::orderBy('fecha', 'desc')->get();
+        // Cosmos DB requiere índice para orderBy, por eso ordenamos en PHP
+        $reservas = Reserva::all()->sortByDesc('fecha')->values();
         foreach ($reservas as $reserva) {
             $reserva->cancha_nombre = optional(
                 Cancha::find($reserva->cancha_id)
@@ -34,13 +35,19 @@ class ReservaController extends Controller
         $datos = $request->validate([
             'cancha_id'      => 'required|string',
             'nombre_cliente' => 'required|string|max:100',
+            'email'          => 'required|email|max:150',
             'telefono'       => 'required|string|max:20',
             'fecha'          => 'required|date|after_or_equal:today',
             'hora_inicio'    => 'required|date_format:H:i',
-            'hora_fin'       => 'required|date_format:H:i|after:hora_inicio',
+            'duracion'       => 'required|integer|min:30|max:240',
         ]);
 
-        // Verificar solapamiento en PHP (más confiable en Cosmos que un query complejo)
+        // Calcular la hora de fin sumando la duración (en minutos)
+        $inicio = \DateTime::createFromFormat('H:i', $datos['hora_inicio']);
+        $fin = (clone $inicio)->modify('+' . $datos['duracion'] . ' minutes');
+        $datos['hora_fin'] = $fin->format('H:i');
+
+        // Verificar solapamiento en PHP (más confiable en Cosmos)
         $reservasMismoDia = Reserva::where('cancha_id', $datos['cancha_id'])
             ->where('fecha', $datos['fecha'])
             ->get();
@@ -49,7 +56,6 @@ class ReservaController extends Controller
             if ($r->estado === 'cancelada') {
                 continue;
             }
-            // ¿Se cruzan los horarios?
             if ($datos['hora_inicio'] < $r->hora_fin && $datos['hora_fin'] > $r->hora_inicio) {
                 return back()->withInput()->withErrors([
                     'horario' => 'Ya existe una reserva en ese horario para esta cancha.',
@@ -57,6 +63,8 @@ class ReservaController extends Controller
             }
         }
 
+        // Quitamos 'duracion' porque no es un campo de la reserva
+        unset($datos['duracion']);
         $datos['estado'] = 'confirmada';
         Reserva::create($datos);
 

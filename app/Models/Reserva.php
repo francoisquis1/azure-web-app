@@ -12,14 +12,14 @@ class Reserva extends Model
     protected $fillable = [
         'cancha_id',
         'nombre_cliente',
+        'email',
         'telefono',
-        'fecha',         // formato Y-m-d
-        'hora_inicio',   // formato H:i
-        'hora_fin',      // formato H:i
-        'estado',        // "confirmada" | "pendiente" | "cancelada"
+        'fecha',
+        'hora_inicio',
+        'hora_fin',
+        'estado',
     ];
 
-    // Cada reserva pertenece a una cancha
     public function cancha()
     {
         return $this->belongsTo(Cancha::class, 'cancha_id');
