@@ -32,14 +32,18 @@ class ReservaController extends Controller
     // Guarda la reserva validando que no choque con otra
     public function store(Request $request)
     {
+        $fechaMax = date('Y-m-d', strtotime('+1 month'));
+
         $datos = $request->validate([
             'cancha_id'      => 'required|string',
             'nombre_cliente' => 'required|string|max:100',
             'email'          => 'required|email|max:150',
             'telefono'       => 'required|string|max:20',
-            'fecha'          => 'required|date|after_or_equal:today',
+            'fecha'          => 'required|date|after_or_equal:today|before_or_equal:' . $fechaMax,
             'hora_inicio'    => 'required|date_format:H:i',
             'duracion'       => 'required|integer|min:30|max:240',
+        ], [
+            'fecha.before_or_equal' => 'Solo puedes reservar hasta con 1 mes de anticipación.',
         ]);
 
         // Calcular la hora de fin sumando la duración (en minutos)
@@ -111,7 +115,6 @@ class ReservaController extends Controller
 
         $callback = function () use ($filas) {
             $salida = fopen('php://output', 'w');
-            // BOM para que Excel abra bien los acentos
             fprintf($salida, chr(0xEF).chr(0xBB).chr(0xBF));
             if (!empty($filas)) {
                 fputcsv($salida, array_keys($filas[0]));

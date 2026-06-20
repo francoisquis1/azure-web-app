@@ -40,7 +40,10 @@
             </div>
             <div class="campo">
                 <label>Fecha</label>
-                <input type="date" name="fecha" value="{{ old('fecha') }}" min="{{ date('Y-m-d') }}" required>
+                <input type="date" name="fecha" value="{{ old('fecha') }}"
+                       min="{{ date('Y-m-d') }}"
+                       max="{{ date('Y-m-d', strtotime('+1 month')) }}" required>
+                <div class="ayuda">Puedes reservar hasta con 1 mes de anticipación.</div>
             </div>
             <div class="campo">
                 <label>Hora de inicio</label>

@@ -1,12 +1,18 @@
 @extends('layout')
 
-@section('titulo', 'Mis Reservas')
+@section('titulo', 'Reservas')
 
 @section('contenido')
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
         <div>
             <h1 class="titulo">Reservas Registradas</h1>
-            <p class="subtitulo" style="margin-bottom:0;">Todas las reservas de canchas</p>
+            <p class="subtitulo" style="margin-bottom:0;">
+                @if(session('auth_rol') === 'admin')
+                    Todas las reservas con datos de contacto
+                @else
+                    Horarios ocupados de las canchas
+                @endif
+            </p>
         </div>
         @if(session('auth_rol') === 'admin' && !$reservas->isEmpty())
             <div style="display:flex; gap:.6rem;">
@@ -28,8 +34,10 @@
             <thead>
                 <tr>
                     <th>Cancha</th>
-                    <th>Cliente</th>
-                    <th>Contacto</th>
+                    @if(session('auth_rol') === 'admin')
+                        <th>Cliente</th>
+                        <th>Contacto</th>
+                    @endif
                     <th>Fecha</th>
                     <th>Horario</th>
                     <th>Estado</th>
@@ -42,11 +50,13 @@
                 @foreach($reservas as $reserva)
                     <tr>
                         <td>{{ $reserva->cancha_nombre }}</td>
-                        <td>{{ $reserva->nombre_cliente }}</td>
-                        <td>
-                            <small style="color:var(--txt2);">{{ $reserva->email ?? '' }}</small><br>
-                            <small style="color:var(--txt2);">{{ $reserva->telefono }}</small>
-                        </td>
+                        @if(session('auth_rol') === 'admin')
+                            <td>{{ $reserva->nombre_cliente }}</td>
+                            <td>
+                                <small style="color:var(--txt2);">{{ $reserva->email ?? '' }}</small><br>
+                                <small style="color:var(--txt2);">{{ $reserva->telefono }}</small>
+                            </td>
+                        @endif
                         <td>{{ $reserva->fecha }}</td>
                         <td>{{ $reserva->hora_inicio }} - {{ $reserva->hora_fin }}</td>
                         <td><span class="estado estado-{{ $reserva->estado }}">{{ ucfirst($reserva->estado) }}</span></td>

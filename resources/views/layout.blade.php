@@ -194,7 +194,7 @@
         <nav>
             <a href="{{ route('canchas.index') }}">Canchas</a>
             <a href="{{ route('reservas.create') }}">Reservar</a>
-            <a href="{{ route('reservas.index') }}">Mis Reservas</a>
+            <a href="{{ route('reservas.index') }}">Reservas</a>
             @if(session('auth_rol') === 'admin')
                 <a href="{{ route('canchas.create') }}" class="cta">+ Nueva cancha</a>
                 <form action="{{ route('logout') }}" method="POST" style="margin:0; padding:0; border:none; background:none; display:inline;">
@@ -202,7 +202,7 @@
                     <button type="submit" style="background:none; border:1px solid var(--borde); color:var(--txt2); padding:.5rem 1rem; border-radius:8px; cursor:pointer; font-family:inherit; font-size:.95rem;">Salir ({{ session('auth_usuario') }})</button>
                 </form>
             @else
-                <a href="{{ route('login') }}">Admin</a>
+                <a href="{{ route('login') }}">Iniciar sesión</a>
             @endif
         </nav>
     </div>
@@ -226,7 +226,7 @@
     </div>
 
     <footer>
-        ⚽ CanchaYa — Reserva tu cancha de fútbol en segundos · Hecho con Laravel + Azure
+        ⚽ CanchaYa — Reserva tu cancha de fútbol en segundos · Hecho por Franco con 1 dia sin dormir, ayuda porfavor 🙏
     </footer>
 </body>
 </html>
