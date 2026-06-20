@@ -12,7 +12,6 @@ class ReservaController extends Controller
     public function index()
     {
         $reservas = Reserva::orderBy('fecha', 'desc')->get();
-        // Adjuntamos el nombre de la cancha a cada reserva
         foreach ($reservas as $reserva) {
             $reserva->cancha_nombre = optional(
                 Cancha::find($reserva->cancha_id)
@@ -21,7 +20,7 @@ class ReservaController extends Controller
         return view('reservas.index', compact('reservas'));
     }
 
-    // Formulario para reservar (se elige cancha, fecha y hora)
+    // Formulario para reservar
     public function create(Request $request)
     {
         $canchas = Cancha::where('activa', true)->get();
@@ -41,18 +40,21 @@ class ReservaController extends Controller
             'hora_fin'       => 'required|date_format:H:i|after:hora_inicio',
         ]);
 
-        // Verificar solapamiento: misma cancha, misma fecha, horario cruzado
-        $existeChoque = Reserva::where('cancha_id', $datos['cancha_id'])
+        // Verificar solapamiento en PHP (más confiable en Cosmos que un query complejo)
+        $reservasMismoDia = Reserva::where('cancha_id', $datos['cancha_id'])
             ->where('fecha', $datos['fecha'])
-            ->where('estado', '!=', 'cancelada')
-            ->where('hora_inicio', '<', $datos['hora_fin'])
-            ->where('hora_fin', '>', $datos['hora_inicio'])
-            ->exists();
+            ->get();
 
-        if ($existeChoque) {
-            return back()->withInput()->withErrors([
-                'horario' => 'Ya existe una reserva en ese horario para esta cancha.',
-            ]);
+        foreach ($reservasMismoDia as $r) {
+            if ($r->estado === 'cancelada') {
+                continue;
+            }
+            // ¿Se cruzan los horarios?
+            if ($datos['hora_inicio'] < $r->hora_fin && $datos['hora_fin'] > $r->hora_inicio) {
+                return back()->withInput()->withErrors([
+                    'horario' => 'Ya existe una reserva en ese horario para esta cancha.',
+                ]);
+            }
         }
 
         $datos['estado'] = 'confirmada';
