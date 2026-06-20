@@ -14,11 +14,7 @@
         </div>
         <div class="campo">
             <label>Tipo</label>
-            <select name="tipo" required>
-                <option value="Fútbol 5">Fútbol 5</option>
-                <option value="Fútbol 7">Fútbol 7</option>
-                <option value="Fútbol 11">Fútbol 11</option>
-            </select>
+            <input type="text" name="tipo" value="{{ old('tipo') }}" placeholder="Ej: Fútbol 8, Fulbito, Grass natural..." required>
         </div>
         <div class="campo">
             <label>Precio por hora (S/)</label>
