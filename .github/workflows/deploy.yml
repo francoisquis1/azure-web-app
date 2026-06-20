@@ -24,13 +24,10 @@ jobs:
           tools: composer:v2
 
       - name: Instalar dependencias de Composer
-        run: |
-          composer config --no-plugins audit.abandoned ignore
-          composer update --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
+        run: composer update --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs --no-audit
 
       - name: Preparar .env
-        run: |
-          cp .env.example .env
+        run: cp .env.example .env
 
       - name: Comprimir artefacto
         run: zip -r app.zip . -x '*.git*'
