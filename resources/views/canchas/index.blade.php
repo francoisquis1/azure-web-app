@@ -20,7 +20,9 @@
         <div class="vacio">
             <div class="icono">🥅</div>
             <p>Todavía no hay canchas registradas.</p>
-            <a href="{{ route('canchas.create') }}" class="btn">Registrar la primera cancha</a>
+            @if(session('auth_rol') === 'admin')
+                <a href="{{ route('canchas.create') }}" class="btn">Registrar la primera cancha</a>
+            @endif
         </div>
     @else
         <div class="grid">
@@ -42,6 +44,14 @@
                             <p class="card-desc"></p>
                         @endif
                         <a href="{{ route('reservas.create', ['cancha_id' => $cancha->_id]) }}" class="btn btn-block">Reservar esta cancha</a>
+                        @if(session('auth_rol') === 'admin')
+                            <form action="{{ route('canchas.destroy', $cancha->_id) }}" method="POST" style="margin-top:.6rem; padding:0; border:none; background:none;"
+                                  onsubmit="return confirm('¿Eliminar esta cancha?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-rojo btn-block">Eliminar cancha</button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             @endforeach

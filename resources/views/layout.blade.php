@@ -39,7 +39,7 @@
         }
         .navbar .logo { font-size: 1.5rem; font-weight: 800; color: var(--verde); display:flex; align-items:center; gap:.4rem; }
         .navbar .logo span { color: var(--txt); }
-        .navbar nav { display: flex; gap: .5rem; flex-wrap: wrap; }
+        .navbar nav { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
         .navbar nav a {
             color: var(--txt2);
             text-decoration: none;
@@ -195,7 +195,15 @@
             <a href="{{ route('canchas.index') }}">Canchas</a>
             <a href="{{ route('reservas.create') }}">Reservar</a>
             <a href="{{ route('reservas.index') }}">Mis Reservas</a>
-            <a href="{{ route('canchas.create') }}" class="cta">+ Nueva cancha</a>
+            @if(session('auth_rol') === 'admin')
+                <a href="{{ route('canchas.create') }}" class="cta">+ Nueva cancha</a>
+                <form action="{{ route('logout') }}" method="POST" style="margin:0; padding:0; border:none; background:none; display:inline;">
+                    @csrf
+                    <button type="submit" style="background:none; border:1px solid var(--borde); color:var(--txt2); padding:.5rem 1rem; border-radius:8px; cursor:pointer; font-family:inherit; font-size:.95rem;">Salir ({{ session('auth_usuario') }})</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}">Admin</a>
+            @endif
         </nav>
     </div>
 

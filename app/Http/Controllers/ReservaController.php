@@ -63,7 +63,6 @@ class ReservaController extends Controller
             }
         }
 
-        // Quitamos 'duracion' porque no es un campo de la reserva
         unset($datos['duracion']);
         $datos['estado'] = 'confirmada';
         Reserva::create($datos);
@@ -72,7 +71,7 @@ class ReservaController extends Controller
             ->with('exito', '¡Reserva confirmada!');
     }
 
-    // Cancelar una reserva
+    // Cancelar una reserva (solo admin)
     public function cancelar($id)
     {
         $reserva = Reserva::findOrFail($id);
@@ -81,5 +80,85 @@ class ReservaController extends Controller
 
         return redirect()->route('reservas.index')
             ->with('exito', 'Reserva cancelada.');
+    }
+
+    // Devuelve las reservas con el nombre de cancha resuelto (helper para exportar)
+    private function reservasParaExportar()
+    {
+        $reservas = Reserva::all()->sortByDesc('fecha')->values();
+        $filas = [];
+        foreach ($reservas as $r) {
+            $cancha = optional(Cancha::find($r->cancha_id))->nombre ?? 'Cancha eliminada';
+            $filas[] = [
+                'Cancha'      => $cancha,
+                'Cliente'     => $r->nombre_cliente,
+                'Email'       => $r->email ?? '',
+                'Telefono'    => $r->telefono,
+                'Fecha'       => $r->fecha,
+                'HoraInicio'  => $r->hora_inicio,
+                'HoraFin'     => $r->hora_fin,
+                'Estado'      => $r->estado,
+            ];
+        }
+        return $filas;
+    }
+
+    // Exportar a CSV (solo admin)
+    public function exportarCsv()
+    {
+        $filas = $this->reservasParaExportar();
+        $nombreArchivo = 'reservas_' . date('Y-m-d') . '.csv';
+
+        $callback = function () use ($filas) {
+            $salida = fopen('php://output', 'w');
+            // BOM para que Excel abra bien los acentos
+            fprintf($salida, chr(0xEF).chr(0xBB).chr(0xBF));
+            if (!empty($filas)) {
+                fputcsv($salida, array_keys($filas[0]));
+                foreach ($filas as $fila) {
+                    fputcsv($salida, $fila);
+                }
+            } else {
+                fputcsv($salida, ['No hay reservas']);
+            }
+            fclose($salida);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $nombreArchivo . '"',
+        ]);
+    }
+
+    // Exportar a Excel (solo admin)
+    public function exportarExcel()
+    {
+        $filas = $this->reservasParaExportar();
+        $nombreArchivo = 'reservas_' . date('Y-m-d') . '.xls';
+
+        $html  = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>';
+        $html .= '<table border="1">';
+        if (!empty($filas)) {
+            $html .= '<tr>';
+            foreach (array_keys($filas[0]) as $col) {
+                $html .= '<th>' . htmlspecialchars($col) . '</th>';
+            }
+            $html .= '</tr>';
+            foreach ($filas as $fila) {
+                $html .= '<tr>';
+                foreach ($fila as $valor) {
+                    $html .= '<td>' . htmlspecialchars($valor) . '</td>';
+                }
+                $html .= '</tr>';
+            }
+        } else {
+            $html .= '<tr><td>No hay reservas</td></tr>';
+        }
+        $html .= '</table></body></html>';
+
+        return response($html, 200, [
+            'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $nombreArchivo . '"',
+        ]);
     }
 }

@@ -10,7 +10,6 @@
         <div class="vacio">
             <div class="icono">🥅</div>
             <p>No hay canchas disponibles para reservar.</p>
-            <a href="{{ route('canchas.create') }}" class="btn">Registrar una cancha primero</a>
         </div>
     @else
         <form action="{{ route('reservas.store') }}" method="POST" class="formulario">

@@ -14,13 +14,13 @@ class CanchaController extends Controller
         return view('canchas.index', compact('canchas'));
     }
 
-    // Formulario para crear una cancha nueva (panel admin sencillo)
+    // Formulario para crear una cancha nueva (solo admin)
     public function create()
     {
         return view('canchas.create');
     }
 
-    // Guarda la cancha nueva en Cosmos DB
+    // Guarda la cancha nueva en Cosmos DB (solo admin)
     public function store(Request $request)
     {
         $datos = $request->validate([
@@ -36,5 +36,15 @@ class CanchaController extends Controller
 
         return redirect()->route('canchas.index')
             ->with('exito', 'Cancha registrada correctamente.');
+    }
+
+    // Eliminar una cancha (solo admin)
+    public function destroy($id)
+    {
+        $cancha = Cancha::findOrFail($id);
+        $cancha->delete();
+
+        return redirect()->route('canchas.index')
+            ->with('exito', 'Cancha eliminada.');
     }
 }
