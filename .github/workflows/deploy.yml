@@ -20,22 +20,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, curl, mongodb
+          extensions: mbstring, xml, curl, mongodb, bcmath, fileinfo, openssl, tokenizer, ctype
           tools: composer:v2
 
       - name: Instalar dependencias de Composer
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
 
-      - name: Generar APP_KEY si no existe
+      - name: Preparar .env
         run: |
           cp .env.example .env
-          php artisan key:generate
-
-      - name: Cachear configuración
-        run: |
-          php artisan config:clear
-          php artisan route:clear
-          php artisan view:clear
 
       - name: Comprimir artefacto
         run: zip -r app.zip . -x '*.git*'
